@@ -1,17 +1,31 @@
-cmake_minimum_required(VERSION 3.20.0)
-project(arena VERSION 0.1.0 LANGUAGES C)
+cmake_minimum_required(VERSION 3.25.0)
+project(arena VERSION 1.0.0 LANGUAGES C)
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 if(MSVC)
-    add_compile_options(/W4)
-    add_compile_options($<$<CONFIG:Debug>:/fsanitize=address>)
+	add_compile_options(
+		/W4 /WX /std:clatest /guard:cf /analyze /sdl /permissive-
+		$<$<CONFIG:Debug>:/fsanitize=address>
+		$<$<CONFIG:Debug>:/Od>
+		$<$<CONFIG:Release>:/O2>
+	)
 else()
-    add_compile_options(-Wpedantic -Wall -Wextra -Werror)
-    add_compile_options($<$<CONFIG:Release>:-O3> $<$<CONFIG:Release>:-ffast-math>)
-    add_compile_options($<$<CONFIG:Debug>:-fsanitize=address> $<$<CONFIG:Debug>:-fsanitize=undefined>)
-    add_link_options($<$<CONFIG:Debug>:-fsanitize=address> $<$<CONFIG:Debug>:-fsanitize=undefined>)
+	add_compile_options(
+		-pedantic -Wall -Wextra -Werror -Wconversion -Wformat-security
+		-ftrivial-auto-var-init=zero -fstack-clash-protection -fpie -Wl,-pie
+		-fpic -shared -Wl,-z,noexecstack -fstack-protector-strong
+		$<$<CONFIG:Debug>:-D_FORTIFY_SOURCE=3>
+		$<$<CONFIG:Debug>:-g3>
+		$<$<CONFIG:Debug>:-fsanitize=address>
+		$<$<CONFIG:Debug>:-fsanitize=undefined>
+		$<$<CONFIG:Release>:-O2>
+	)
+	add_link_options(
+		$<$<CONFIG:Debug>:-fsanitize=address>
+		$<$<CONFIG:Debug>:-fsanitize=undefined>
+	)
 endif()
 
 add_library(arena STATIC src/arena.c)

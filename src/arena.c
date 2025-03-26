@@ -86,7 +86,7 @@ void arena_pop(Arena arena, size_t size)
 
 size_t arena_size(Arena arena)
 {
-	return arena->pos - arena->buffer;
+	return (size_t)(arena->pos - arena->buffer);
 }
 
 size_t arena_capacity(Arena arena)
